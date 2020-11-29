@@ -176,7 +176,7 @@ public class PublicMethod {
                         position = String.valueOf(Double.valueOf(bidArr[0])+0.00000001);
                         System.out.print(position);
                         //判断 当前位置有没有挂单
-                        Boolean bool = ifList(position,bidArray);
+                        Boolean bool = ifList(position,bidArray); 
                         if(bool){//true
                             position = String.valueOf(Double.valueOf(position)+0.00000001);
                         }
