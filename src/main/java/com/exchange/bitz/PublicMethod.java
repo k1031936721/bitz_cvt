@@ -170,17 +170,28 @@ public class PublicMethod {
                 tmp_0 += Double.valueOf(bidArr[0]);//价格
                 tmp_1 += Double.valueOf(bidArr[1]);//数量
                 tmp_2 += Double.valueOf(bidArr[0])*Double.valueOf(bidArr[1]);//总值
-                if(tmp_1>=0 && tmp_1<20000){
+                if(tmp_1>0 && tmp_1<20000){
                     //小于利润价并满足以上条件跳出
                     if(Double.valueOf(bidArr[0])+0.00000001<=price_coin*0.96){
                         position = String.valueOf(Double.valueOf(bidArr[0])+0.00000001);
                         System.out.print(position);
+                        //判断 当前位置有没有挂单
+                        Boolean bool = ifList(position,bidArray);
+                        if(bool){//true
+                            position = String.valueOf(Double.valueOf(position)+0.00000001);
+                        }
+
                         break;
                     }
                 }else if(tmp_1>=20000 && tmp_1<50000){
                     if(Double.valueOf(tmp_2/tmp_1)+0.00000001<=price_coin*0.96){
                         position = String.valueOf(new BigDecimal(Double.valueOf(tmp_2/tmp_1)+0.00000001).setScale(8, java.math.BigDecimal.ROUND_UP).toPlainString());
                         System.out.print(position);
+                        //判断 当前位置有没有挂单
+                        Boolean bool = ifList(position,bidArray);
+                        if(bool){//true
+                            position = String.valueOf(Double.valueOf(position)+0.00000001);
+                        }
                         break;
                     }
                 }else if(tmp_1>=50000){
@@ -190,6 +201,11 @@ public class PublicMethod {
                     }else{
                         position = String.valueOf(price_coin*0.75);
                         System.out.print(position);
+                    }
+                    //判断 当前位置有没有挂单
+                    Boolean bool = ifList(position,bidArray);
+                    if(bool){//true
+                        position = String.valueOf(Double.valueOf(position)+0.00000001);
                     }
                     break;
                 }
@@ -204,6 +220,30 @@ public class PublicMethod {
 
         return position;
 
+    }
+
+    /**
+     * //判断 当前位置有没有挂单
+     * @return
+     */
+    public Boolean ifList(String position,String[] bidArray){
+        String[] bidArr0 = null;
+        for(int i=0;i<bidArray.length-1;i++){
+            bidArr0 = bidArray[i]
+                    .replaceAll("\\[", "")
+                    .replaceAll("\\]", "")
+                    .replaceAll("\"", "")
+                    .split(",");
+            if(position.equals(bidArr0[0]) && Integer.parseInt(bidArr0[1])>1000){
+//                log.info("==================>当前位置"+position+"有挂单，需要跳过！");
+                //打日志并发企业微信
+                Dynamic.Logger("==================>当前位置"+position+"有挂单，需要跳过！","@");
+                return true;
+            }
+        }
+
+
+        return false;
     }
 
     /**
@@ -445,7 +485,7 @@ public class PublicMethod {
             String bj = null;
             String coin_buy_num_now = null;
             //根据上面的挂单触发顶单
-            if(sum>=1000){
+            if(sum>=4000){
                 //撤销当前委托单
                 for(int i=0;i<=orderlist.size()-1;i++){
                     Map<String,String> orderMap = orderlist.get(i);
